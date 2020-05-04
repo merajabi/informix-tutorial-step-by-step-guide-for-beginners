@@ -11,6 +11,7 @@ you can download such image from Docker Hub.
 there is a ``` informix dockerhub readme``` on github that has compelete guide on how to use different version of docker images.
 
 >[IBM Informix Developer Edition Docker Containers](https://hub.docker.com/r/ibmcom/informix-developer-database/)
+
 >[informix dockerhub readme](https://github.com/informix/informix-dockerhub-readme)
 
 I will use the latest version which was 14.10.FC1 at this time, but I will guess using other image is quite similar.
