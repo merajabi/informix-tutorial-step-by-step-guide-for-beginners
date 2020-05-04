@@ -58,7 +58,7 @@ Database selected.
 
 then again issu ```INFO TABLES;``` to see list of tables on this database.
 
-```sh
+```sql
 > INFO TABLES;
 
 
@@ -155,7 +155,6 @@ Table created.
 ```sql
 > select * from customer;
 
-
 customer_code customer_name                   company_name
 
           102 Carole Sadler                   Sports Spot         
@@ -184,11 +183,6 @@ revoke all on "informix".customer from "public" as "informix";
 ```sh
 informix@ifx:~$ dbaccess - -
 ```
-```sql
-> database sales_demo;
-
-Database selected.
-```
 
 ```sql
 > database sales_demo;
@@ -198,7 +192,6 @@ Database selected.
 
 ```sql
 > INFO TABLES;
-
 
 Table name
 
@@ -222,21 +215,35 @@ Index_name         Owner    Type/Clstr Access_Method      Columns
 ```
 
 ```sh
-informix@ifx:~$ dbaccess sales_demo - <<EOT!
-select * from customer;
-EOT!
+informix@ifx:~$ echo "select * from customer" | dbaccess sales_demo
 
 Database selected.
 
-
-
-customer_code customer_name                   company_name         
+customer_code customer_name                   company_name
 
           102 Carole Sadler                   Sports Spot         
 
 1 row(s) retrieved.
 
+Database closed.
+```
 
+```sh
+informix@ifx:~$ dbaccess sales_demo - <<EOT!
+> insert into customer values (103, "John Doe", "John Company");
+> select * from customer;
+> EOT!
+
+Database selected.
+
+1 row(s) inserted.
+
+customer_code customer_name                   company_name
+
+          102 Carole Sadler                   Sports Spot         
+          103 John Doe                        John Company        
+
+2 row(s) retrieved.
 
 Database closed.
 
