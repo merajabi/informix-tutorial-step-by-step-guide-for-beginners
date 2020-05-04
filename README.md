@@ -21,12 +21,12 @@ I am using LUbuntu 18.04, you can find tutorial on how to install and use Docker
 issue following command on your terminal to download image
 
 ```sh
-docker pull ibmcom/informix-developer-database
+raha@lab:~$docker pull ibmcom/informix-developer-database
 ```
 after download completed issue following command to set up the image for the first time. ```--name ifx``` will be the name of this image for future refrence, ```-h ifx``` will be the name of machine host, donot miss the ```-e LICENSE=accept``` part or your server will not works!
 
 ```sh
-docker run -it --name ifx -h ifx					\
+raha@lab:~$docker run -it --name ifx -h ifx					\
       -p 9088:9088                                  \
       -p 9089:9089                                  \
       -p 27017:27017                                \ 
@@ -36,10 +36,10 @@ docker run -it --name ifx -h ifx					\
       ibmcom/informix-developer-database:latest
 ```
 if everything goes well you will have a working server by now, lets see.
-Issue following command to get a bash shell on your docker.
+open another terminal and issue following command to get a bash shell on your docker.
 
 ```sh
-docker exec -it ifx bash
+raha@lab:~$docker exec -it ifx bash
 ```
 you will get following prompt, for user informix on ifx host.
 
@@ -70,56 +70,178 @@ sysaudit           sysbaract_log      sysbtcreq          sysbufhdr
 sysbufpool         sysbufprofile      syscdr_ats         syscdr_atsdir     
 syscdr_ddr         syscdr_nif         syscdr_rcv         syscdr_ris        
 syscdr_risdir      syscdr_rqm         syscdr_rqmhandle   syscdr_rqmstamp   
-syscdr_state       syscdrack_buf      syscdrack_txn      syscdrcntrlqprog  
-syscdrctrl_buf     syscdrctrl_txn     syscdrlatency      syscdrprog        
-syscdrq            syscdrrecv_buf     syscdrrecv_stats   syscdrrecv_txn    
-syscdrrecvqprog    syscdrs            syscdrsend_buf     syscdrsend_txn    
-syscdrsync_buf     syscdrsync_txn     syscdrtsapply      syscdrtx          
-syscfgtab          syscheckpoint      syschfree          syschkextents     
-syschkio           syschktab          syschktab_fast     syschunks         
-syschunks_fast     sysckptinfo        syscluster         syscmsm           
-syscmsmsla         syscmsmtab         syscmsmunit        syscompdicts      
-syscompdicts_full  sysconblock        sysconditions      sysconfig         
-sysconlst          sysconq            syscrtadt          sysdatabases      
-sysdbslocale       sysdbspaces        sysdbspartn        sysdbstab         
-sysdic             sysdiccache        sysdistcache       sysdrcb           
-sysdri             sysdsc             sysdual            sysdwacoord       
-sysenv             sysenvses          sysextents         sysextspaces      
-sysfeatures        sysfileinfo        sysgrid            sysha_lagtime     
-sysha_nodes        sysha_type         sysha_workload     sysiohistory      
-sysipl             syslcktab          syslicenseinfo     syslocks          
-syslocktab         syslogfil          syslogs            syslowmemorymgr   
-syslrus            sysmachineinfo     sysmchktab         sysmchktab_fast   
-sysmgmgates        sysmgminfo         sysmgmquery        sysmtxlst         
-sysmutexes         sysmutq            sysnetclienttype   sysnetglobal      
-sysnetworkio       sysonlinelog       sysopendb          syspaghdr         
-sysphyspaghdrs     sysplog            syspoollst         syspools          
-sysprc             sysprobecolumns    sysprobejds        sysprobejps       
-sysprobetables     sysproccache       sysprof_address    sysprof_func      
-sysprof_percentage sysprofile         sysproftab         sysproxyagents    
-sysproxydistribut+ sysproxysessions   sysproxytxnops     sysproxytxns      
-sysptnbit          sysptncol          sysptnext          sysptnhdr         
-sysptnkey          sysptntab          sysptprof          sysrawdsk         
-sysreorgops        sysrepevtreg       sysrepstats        sysrsslog         
-sysrstcb           sysscblst          syssdblock         sysseglst         
-syssegments        syssesappinfo      syssesprof         syssessions       
-sysseswts          sysshmem           sysshmhdr          sysshmvals        
-syssltdat          sysslttab          syssmx             syssmxses         
-syssqexplain       syssqlcacheprof    syssqlcurall       syssqlcurses      
-syssqlhosts        syssqlstat         syssqltrace        syssqltrace_hvar  
-syssqltrace_info   syssqltrace_iter   syssqscb           syssrcrss         
-syssrcsds          syssscelem         sysstoragemgr      syssymtab         
-systabextents      systabinfo         systabnames        systabpagtypes    
-systcblst          systhreads         systhreadwaits     systraces         
-systrans           systrgrss          systrgsds          systwaits         
-systxptab          sysuserthreads     sysvplst           sysvpprof         
-sysxatab           
+...
+
+```
+if you are getting ```bash: dbaccess: command not found``` when issuing dbaccess, you should update your PATH environment variable. 
+
+```sh
+informix@ifx:~$cd /home/informix
+informix@ifx:~$vi .profile
+```
+then add these line to the end of  ```.profile``` file. assuming informix in docker image installed on ```/opt/ibm/informix```
+
+```sh
+if [ -d "/opt/ibm/informix/bin" ] ; then
+    PATH="/opt/ibm/informix/bin:$PATH"
+fi
+```
+then issue
+
+```sh
+informix@ifx:~$source .profile
+```
+
+you can type exit to exit the docker shell.
+```sh
+informix@ifx:~$exit
+```
+
+if you want to shutdown the docker instance, you have two option.
+either press ctrl+c on the same terminal that you initially run it, or issue following command on another terminal
+
+
+```sh
+raha@lab:~$docker stop ifx 
+```
+if you want to start this mashine for the future time just issue start command
+```sh
+raha@lab:~$docker start ifx 
+```
+if you provide ```-i``` option you will see some logs on your terminal which may be helpful later for debugging
+
+```sh
+raha@lab:~$docker start -i ifx 
+```
+
+to see the list of available docker instance on your system issue following command.
+```sh
+raha@lab:~$docker ps -a
+```
+ok we are done now, our server is running in the following section we will learn some informix sql basics.
+
+## dbaccess, dbschema and sql
+```sh
+raha@lab:~$docker start ifx 
+```
+```sh
+raha@lab:~$docker exec -it ifx bash
+```
+
+```sh
+informix@ifx:~$ dbaccess - -
+```
+
+```sql
+> create database sales_demo;
+
+Database created.
+```
+
+```sql
+> create table customer (
+ customer_code integer,
+ customer_name char(31),
+ company_name char(20)
+);
+> > > > 
+Table created.
+```
+```sql
+> insert into customer values (102, "Carole Sadler", "Sports Spot");
+
+1 row(s) inserted.
+```
+```sql
+> select * from customer;
+
+
+customer_code customer_name                   company_name
+
+          102 Carole Sadler                   Sports Spot         
+
+1 row(s) retrieved.
+```
+press ctrl+d to exit dbaccess
+
+```sh
+informix@ifx:~$ dbschema -d sales_demo -t customer
+
+DBSCHEMA Schema Utility       INFORMIX-SQL Version 14.10.FC3
+
+{ TABLE "informix".customer row size = 55 number of columns = 3 index size = 0 }
+
+create table "informix".customer 
+  (
+    customer_code integer,
+    customer_name char(31),
+    company_name char(20)
+  );
+
+revoke all on "informix".customer from "public" as "informix";
+
+```
+```sh
+informix@ifx:~$ dbaccess - -
+```
+```sql
+> database sales_demo;
+
+Database selected.
+```
+
+```sql
+> database sales_demo;
+
+Database selected.
+```
+
+```sql
+> INFO TABLES;
+
+
+Table name
+
+customer
+```
+
+```sql
+> INFO COLUMNS FOR customer;
+
+Column name          Type                                    Nulls
+
+customer_code        integer                                 yes
+customer_name        char(31)                                yes
+company_name         char(20)                                yes
+```
+
+```sql
+> INFO INDEXES FOR customer;
+
+Index_name         Owner    Type/Clstr Access_Method      Columns
+```
+
+```sh
+informix@ifx:~$ dbaccess sales_demo - <<EOT!
+select * from customer;
+EOT!
+
+Database selected.
+
+
+
+customer_code customer_name                   company_name         
+
+          102 Carole Sadler                   Sports Spot         
+
+1 row(s) retrieved.
+
+
+
+Database closed.
 
 ```
 
-ok we are done now, our server is running in the folloeing section we will learn some informix sql basics.
-
-## dbaccess, dbschema and sql
 ## installing informix client sdk
 ## Connecting to Server from outside world
 ## summary
