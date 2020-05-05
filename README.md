@@ -27,7 +27,7 @@ raha@lab:~$docker pull ibmcom/informix-developer-database
 after download completed issue following command to set up the image for the first time. ```--name ifx``` will be the name of this image for future refrence, ```-h ifx``` will be the name of machine host, donot miss the ```-e LICENSE=accept``` part or your server will not works!
 
 ```sh
-raha@lab:~$docker run -it --name ifx -h ifx					\
+raha@lab:~$docker run -it --name ifx -h ifx			\
       -p 9088:9088                                  \
       -p 9089:9089                                  \
       -p 27017:27017                                \ 
@@ -61,7 +61,6 @@ then again issu ```INFO TABLES;``` to see list of tables on this database.
 
 ```sql
 > INFO TABLES;
-
 
 Table name
 
@@ -105,7 +104,7 @@ either press ctrl+c on the same terminal that you initially run it, or issue fol
 ```sh
 raha@lab:~$docker stop ifx 
 ```
-if you want to start this mashine for the future time just issue start command
+if you want to start this mashine in future time just issue ```start``` command, DO NOT issue ```run``` again
 ```sh
 raha@lab:~$docker start ifx 
 ```
@@ -145,7 +144,7 @@ Database created.
  customer_name char(31),
  company_name char(20)
 );
-> > > > 
+
 Table created.
 ```
 ```sql
