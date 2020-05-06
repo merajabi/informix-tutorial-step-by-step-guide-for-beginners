@@ -101,7 +101,7 @@ insert into customer values (102, "Carole Sadler", "Sports Spot");
 insert into customer values (103, "John Doe", "John Company");
 EOT!
 
-```sql
+```
 
 The class ITDBInfo prepares Connection String and has a constructor like this ```ITDBInfo(Database,Server,User,Password)``` you can also set these parameters individually.
 
@@ -222,22 +222,22 @@ ITValue class can hold any type of value, a row or even a single column data, no
 on each call to ```Fetch()``` it will return a pointer to the next row in the set, and you must make sure to Release all these rows and finally the set itself.
 
 ```cpp
-	// Create a query object
-	ITQuery query(conn);
+// Create a query object
+ITQuery query(conn);
 
-	// select the contents of the table
-	ITSet *set = query.ExecToSet("select * from customer;"); 
-	if( !set ) {
-		throw std::runtime_error("Query failed!");
-	}
+// select the contents of the table
+ITSet *set = query.ExecToSet("select * from customer;"); 
+if( !set ) {
+	throw std::runtime_error("Query failed!");
+}
 
-	// show the contents of the table
-	ITValue *v;
-	while ((v = set->Fetch()) != nullptr) {
-		std::cout << v->Printable() << std::endl;
-		v->Release();
-	}                                                           
-	set->Release();
+// show the contents of the table
+ITValue *v;
+while ((v = set->Fetch()) != nullptr) {
+	std::cout << v->Printable() << std::endl;
+	v->Release();
+}                                                           
+set->Release();
 ```
 
 ok let's see how we can access the columns indivdually.
@@ -247,22 +247,22 @@ one way for this is to cast the ITValue to ITRow in the above example and then a
 you can see the output of ```Column()``` method is ITValue* again, and this time ```Printable()``` will output the value of that column only. just do not forget to release all these pointers.
 
 ```cpp
-	// show the contents of the table
-	ITValue *val;
-	while ((val = set->Fetch()) != nullptr) {
-		ITRow *row = (ITRow*)val;
-		ITValue *col1 = row->Column(0); // row->Column("customer_code")
-		ITValue *col2 = row->Column(1); // row->Column("customer_name")
-		ITValue *col3 = row->Column(2); // row->Column("company_name")
+// show the contents of the table
+ITValue *val;
+while ((val = set->Fetch()) != nullptr) {
+	ITRow *row = (ITRow*)val;
+	ITValue *col1 = row->Column(0); // row->Column("customer_code")
+	ITValue *col2 = row->Column(1); // row->Column("customer_name")
+	ITValue *col3 = row->Column(2); // row->Column("company_name")
 
-		std::cout << col1->Printable() << " : " << col2->Printable() << " : " << col3->Printable() << std::endl;
+	std::cout << col1->Printable() << " : " << col2->Printable() << " : " << col3->Printable() << std::endl;
 
-		col1->Release();
-		col2->Release();
-		col3->Release();
+	col1->Release();
+	col2->Release();
+	col3->Release();
 
-		val->Release();
-	}
+	val->Release();
+}
 ```
 
 There is also another method to query multiple lines from the database, and by the form of implementation I can guess for large table its more efficient too, but I am not sure yet, I am still learning.
@@ -271,20 +271,20 @@ now ```ExecForIteration()``` method call do not return any thing but a boolian, 
 and as previous we can extract column by index or name.
 
 ```cpp
-	// Create a query object
-	ITQuery query(conn);
+// Create a query object
+ITQuery query(conn);
 
-	// select the contents of the table
-	if( !query.ExecForIteration("select * from customer;") ) {
-		throw std::runtime_error("Query failed!");
-	}
+// select the contents of the table
+if( !query.ExecForIteration("select * from customer;") ) {
+	throw std::runtime_error("Query failed!");
+}
 
-	// show the contents of the table
-	ITRow *row; 
-	while ((row = query.NextRow()) != nullptr) {
-		std::cout << row->Printable() << std::endl;
-		row->Release();                                                           
-	}
+// show the contents of the table
+ITRow *row; 
+while ((row = query.NextRow()) != nullptr) {
+	std::cout << row->Printable() << std::endl;
+	row->Release();                                                           
+}
 ```
 
 Ok what about other sql commands, create, insert, update, ...commands? 
@@ -292,19 +292,19 @@ there is another method in ```ITQuery``` class named ```ExecForStatus``` which y
 for example look at following lines of codes, which drops the customer table and create and populate it again.
 
 ```cpp
-	ITQuery query(conn);
-	if(	!q.ExecForStatus("drop table customer;") ){
-		std::cout << "cannot drop the table" << std::endl;
-	}
-	if( !q.ExecForStatus("create table customer (customer_code integer, customer_name char(31), company_name char(20) );") ){
-		throw std::runtime_error("cannot not create the table!");
-	}
-	if( !q.ExecForStatus("insert into customer values (102, "Carole Sadler", "Sports Spot");") ){
-		throw std::runtime_error("cannot insert into the table");
-	}
-	if( !q.ExecForStatus("insert into customer values (103, "John Doe", "John Company");") ) {
-		throw std::runtime_error("cannot insert into the table");
-	}
+ITQuery query(conn);
+if(	!q.ExecForStatus("drop table customer;") ){
+	std::cout << "cannot drop the table" << std::endl;
+}
+if( !q.ExecForStatus("create table customer (customer_code integer, customer_name char(31), company_name char(20) );") ){
+	throw std::runtime_error("cannot not create the table!");
+}
+if( !q.ExecForStatus("insert into customer values (102, "Carole Sadler", "Sports Spot");") ){
+	throw std::runtime_error("cannot insert into the table");
+}
+if( !q.ExecForStatus("insert into customer values (103, "John Doe", "John Company");") ) {
+	throw std::runtime_error("cannot insert into the table");
+}
 ```
 
 so far so good in the next sections we will learn about transactions and prepared statments, but for now I present a simple solution to guard pointer returned from Informix APIs.
@@ -313,28 +313,28 @@ Remmmber that we should call release for each pointer that API returns to us. if
 assume we have folloing lines of code, if exception happens in middle block of code, the parts denoted by ```...```, the memory will be lost
 
 ```cpp
-	do {
-		ITRow *row = query.NextRow();
-		if(!row) break;
-		{
-			std::cout << row->Printable() << std::endl;
-			...
-		}
-		row->Release();
-	}while(true);
+do {
+	ITRow *row = query.NextRow();
+	if(!row) break;
+	{
+		std::cout << row->Printable() << std::endl;
+		...
+	}
+	row->Release();
+}while(true);
 ```
 
 so I will guard it by using ```std::unique_ptr``` and define a custom deleter lambda to call the Release() function as follow.
 this way there is no need to call ```row->Release()``` explicitly, it will be called as soon as the variable goes out of scope.
 
 ```cpp
-	do {
-		std::unique_ptr<ITRow, std::function<void(ITRow*)> > row(query.NextRow(), [&](ITRow*){if(row!=nullptr){ row->Release();}} );
-		if(!row) break;
-		{
-			std::cout << row->Printable() << std::endl;
-			...
-		}
-	}while(true);
+do {
+	std::unique_ptr<ITRow, std::function<void(ITRow*)> > row(query.NextRow(), [&](ITRow*){if(row!=nullptr){ row->Release();}} );
+	if(!row) break;
+	{
+		std::cout << row->Printable() << std::endl;
+		...
+	}
+}while(true);
 ```
 
