@@ -1,4 +1,4 @@
-# informix-tutorial-step-by-step-guide-for-beginners
+# Informix tutorial, step by step guide for beginners
 
 ## summary
 This tutorial is for ```IBM Informix Developer Edition```, It will guide you step by step through runing a docker image, installing a client SDK, and connecting to database server.
@@ -257,6 +257,7 @@ Database closed.
 Go to this link and download the client sdk for your platform, you should login, its free, and may need vpn and some luck :)
 
 >[IBM Informix Developer Tools](https://www.ibm.com/products/informix/developer-tools)
+
 I have used ```clientsdk.4.10.FC14.linux-x86_64.tar``` then extract the archive an run installer script
 ```sh
 raha@lab:~$tar -xvf clientsdk.4.10.FC14.linux-x86_64.tar
@@ -268,6 +269,7 @@ look around in ```/opt/ibm/informix``` there is
 * bin for excutable
 * etc for informix client configs
 * incl for header files
+* lib for sdk compiled libraries
 * docs & demo which have some useful informations
 
 ok let's configure some enviroment variable to tell the system where to find this SDK
@@ -329,8 +331,8 @@ rtt min/avg/max/mdev = 0.108/0.137/0.177/0.029 ms
 ```
 so everything looks good. lets tell the linux the name of this machine
 ```sh
-sudo cp -vf /etc/hosts /etc/hosts.old
-echo "172.17.0.2 ifx" | sudo tee -a /etc/hosts
+raha@lab:~$sudo cp -vf /etc/hosts /etc/hosts.old
+raha@lab:~$echo "172.17.0.2 ifx" | sudo tee -a /etc/hosts
 ```
 now edit this ```/opt/ibm/informix/etc/sqlhosts``` file
 ```sh

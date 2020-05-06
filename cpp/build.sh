@@ -1,21 +1,40 @@
 #!/bin/bash
 
 FILENAME=$1
-TEST=$2
+LINES=$2
 
 export INFORMIXSERVER=informix
-export INFORMIXDIR=/opt/IBM/Informix_Client-SDK
+export INFORMIXDIR=/opt/ibm/informix
 export LD_LIBRARY_PATH="$INFORMIXDIR/lib:$INFORMIXDIR/lib/esql:$INFORMIXDIR/lib/c++:$INFORMIXDIR/lib/dmi:$INFORMIXDIR/lib/cli"
 
-rm *.out
-#make queryex
+IFX_DIFINED="-DLINUX -DIT_HAS_DISTINCT_LONG_DOUBLE -DIT_COMPILER_HAS_LONG_LONG -DIT_DLLIB -DMITRACE_OFF"
+IFX_INCPATH="-I$INFORMIXDIR/incl -I$INFORMIXDIR/incl/c++ -I$INFORMIXDIR/incl/dmi -I$INFORMIXDIR/incl/esql"
+IFX_LIBPATH="-L$INFORMIXDIR/lib -L$INFORMIXDIR/lib/c++ -L$INFORMIXDIR/lib/dmi -L$INFORMIXDIR/lib/esql"
+IFX_LIBS="-lifc++  -lifdmi   -lifsql -lifasf -lifgen -lifos -lifgls -lifglx $INFORMIXDIR/lib/esql/checkapi.o"
+LIBS="-lcrypt -lnsl -lm -ldl"
 
-/usr/bin/g++ -g -std=c++11 -DLINUX -DIT_HAS_DISTINCT_LONG_DOUBLE -DIT_COMPILER_HAS_LONG_LONG -DIT_DLLIB -DMITRACE_OFF -fPIC -fsigned-char -I$INFORMIXDIR/incl/c++ -I$INFORMIXDIR/incl/dmi -I$INFORMIXDIR/incl -I$INFORMIXDIR/incl/esql -c $FILENAME.cpp
+rm -f *.out
+(/usr/bin/g++ -g -std=c++11  $IFX_DIFINED -fPIC -fsigned-char $IFX_INCPATH -c $FILENAME.cpp) || exit 1;
+(/usr/bin/g++ -o $FILENAME.out $FILENAME.o $IFX_LIBPATH $IFX_LIBS $LIBS -Wl,-rpath,$LD_LIBRARY_PATH) || exit 1;
 
-/usr/bin/g++ -g -std=c++11 -DLINUX -DIT_HAS_DISTINCT_LONG_DOUBLE -DIT_COMPILER_HAS_LONG_LONG -DIT_DLLIB -DMITRACE_OFF -fPIC -fsigned-char -I$INFORMIXDIR/incl/dmi -I$INFORMIXDIR/incl -I$INFORMIXDIR/incl/esql -o $FILENAME.out $FILENAME.o  -L$INFORMIXDIR/lib/c++ -lifc++ -L$INFORMIXDIR/lib/dmi -lifdmi  -L$INFORMIXDIR/lib/esql -L$INFORMIXDIR/lib -lifsql -lifasf -lifgen -lifos -lifgls -lifglx $INFORMIXDIR/lib/esql/checkapi.o -lm -ldl -lcrypt -lnsl -Wl,-rpath,$LD_LIBRARY_PATH
+rm -f *.o
 
-if [ "X$TEST" != "X0" ];then
-	valgrind -v --leak-check=full ./$FILENAME.out
+if [ "X$LINES" = "X" ];then
+	SHOW="tail -n 18"
+elif [ "X$LINES" = "X0" ];then
+	SHOW="cat"
+else
+	SHOW="tail -n $LINES"
 fi
-rm *.o
 
+echo;
+echo "***	valgrind Output Summary:";
+echo "---------------------------------------------------";
+valgrind -v --leak-check=full ./$FILENAME.out 2>&1 | $SHOW
+
+echo;
+echo "***	Program Output:";
+echo "---------------------------------------------------";
+./$FILENAME.out
+
+exit 0;

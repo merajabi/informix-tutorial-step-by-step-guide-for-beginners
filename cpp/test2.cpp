@@ -13,29 +13,26 @@ int main(int argc, char *argv[])
 
 	try {
 		conn.Open();
-		if ( conn.Error() ) {
+		if ( !conn.IsOpen() ) {
 		    throw std::runtime_error("Couldn't open connection");
 		}
 
-		{
-			// Create a query object
-			ITQuery query(conn);
+		// Create a query object
+		ITQuery query(conn);
 
-			// select the contents of the table
-			ITSet *set = query.ExecToSet("select * from customer;"); 
-			if( !set ) {
-				throw std::runtime_error("Query failed!");
-			}
-
-			// show the contents of the table
-			ITValue *v;
-			while ((v = set->Fetch()) != nullptr) {
-				std::cout << v->Printable() << std::endl;
-				v->Release();
-			}                                                           
-			set->Release();
+		// select the contents of the table
+		ITSet *set = query.ExecToSet("select * from customer;"); 
+		if( !set ) {
+			throw std::runtime_error("Query failed!");
 		}
 
+		// show the contents of the table
+		ITValue *v;
+		while ((v = set->Fetch()) != nullptr) {
+			std::cout << v->Printable() << std::endl;
+			v->Release();
+		}                                                           
+		set->Release();
 	}
 	catch(std::exception& e) {
 		std::cout << e.what() << std::endl;
